@@ -1,0 +1,21 @@
+services:
+  supersplat:
+    build: ./docker
+    container_name: supersplat-dev
+    working_dir: /app
+    volumes:
+      - ./:/app:cached
+      - node_modules:/app/node_modules   # 避免宿主机上的权限/性能问题
+      # 可选：把你的 .ply 数据映射为静态资源，方便通过 http 访问
+      # - ./my_ply_data:/app/static/ply:ro
+    ports:
+      - "3000:3000"   # 官方本地开发端口
+      - "5173:5173"   # 备用，保留
+      - "8080:8080"   # 备用，保留
+    tty: true
+    stdin_open: true
+    environment:
+      - HOST=0.0.0.0
+      - VITE_HOST=0.0.0.0
+volumes:
+  node_modules:
