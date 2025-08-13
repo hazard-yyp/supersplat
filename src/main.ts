@@ -26,7 +26,8 @@ import { SphereSelection } from './tools/sphere-selection';
 import { ToolManager } from './tools/tool-manager';
 import { registerTransformHandlerEvents } from './transform-handler';
 import { EditorUI } from './ui/editor';
-
+import { setup } from './addons';
+import { makeSupersplatAppAdapter } from "./addons/supersplat-adapter";
 declare global {
     interface LaunchParams {
         readonly files: FileSystemFileHandle[];
@@ -116,6 +117,27 @@ const main = async () => {
 
     // editor ui
     const editorUI = new EditorUI(events, !!remoteStorageDetails);
+    // 将 EditorUI 实例挂到全局，供插件读取
+    ;(window as any).__SS = Object.assign((window as any).__SS || {}, { editor: editorUI });
+    console.log("[hook] __SS.editor set at entry ->", editorUI);
+    // 当模型加载完成时，由 asset-loader.ts 触发此回调
+    ;(window as any).__SS_onModelLoaded = () => {
+    try {
+        const app = makeSupersplatAppAdapter();
+        // 让我们能在 Console 里调试适配器
+        ;(window as any).__SS.app = app;
+        setup(app); // 启动 LOD + 小地图
+        console.log("[addons] LOD + minimap started");
+    } catch (e) {
+        console.error("[addons] setup failed:", e);
+    }
+    };
+
+    // 如果刷新时已经有模型数据，也触发一次（可选）
+    if ((window as any).__SS?.splatData) {
+    (window as any).__SS_onModelLoaded?.();
+    }
+
 
     // create the graphics device
     const graphicsDevice = await createGraphicsDevice(editorUI.canvas, {

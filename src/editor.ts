@@ -352,6 +352,10 @@ const registerEditorEvents = (events: Events, editHistory: EditHistory, scene: S
 
         selectedSplats().forEach((splat) => {
             const splatData = splat.splatData;
+            // >>> hook: 暴露当前模型的数据，并通知插件
+            ;(window as any).__SS = Object.assign((window as any).__SS || {}, { splatData, lastSplat: splat });
+            ;(window as any).__SS_onModelLoaded && (window as any).__SS_onModelLoaded();
+            console.log("[hook] editor set splatData ->", splatData);
 
             if (mode === 'centers') {
                 const x = splatData.getProp('x');

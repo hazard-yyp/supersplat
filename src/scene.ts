@@ -219,6 +219,9 @@ class Scene {
     start() {
         // start the app
         this.app.start();
+        // 暴露 PlayCanvas app，供适配器查找相机实体
+        ;(window as any).__SS = Object.assign((window as any).__SS || {}, { pcApp: this.app });
+        console.log("[hook] expose pcApp ->", this.app);
     }
 
     clear() {

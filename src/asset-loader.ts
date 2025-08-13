@@ -195,6 +195,11 @@ class AssetLoader {
             });
             this.app.assets.add(asset);
             asset.resource = new GSplatResource(this.app.graphicsDevice, gsplatData);
+            // >>> 新增：把当前模型的 splatData 暴露到全局，并通知插件
+            const __gs = (asset.resource as any).gsplatData || (asset.resource as any).splatData;
+            ;(window as any).__SS = Object.assign((window as any).__SS || {}, { splatData: __gs, lastAsset: asset });
+            ;(window as any).__SS_onModelLoaded && (window as any).__SS_onModelLoaded();
+            console.log("[hook] asset-loader set splatData ->", __gs);
 
             return new Splat(asset);
         } finally {

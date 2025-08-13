@@ -88,6 +88,11 @@ class Splat extends Element {
         this.asset = asset;
         this.splatData = splatData as GSplatData;
         this.numSplats = splatData.numSplats;
+        // >>> hook: 暴露当前模型的数据，并通知插件
+        ;(window as any).__SS = Object.assign((window as any).__SS || {}, { splatData: this.splatData, lastSplat: this });
+        ;(window as any).__SS_onModelLoaded && (window as any).__SS_onModelLoaded();
+        console.log("[hook] splat ctor set splatData ->", this.splatData);
+
 
         this.entity = new Entity('splatEntitiy');
         this.entity.setEulerAngles(0, 0, 180);
